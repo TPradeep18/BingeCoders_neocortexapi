@@ -27,7 +27,7 @@ namespace NeoCortexApiSample
             // We will build a slice of the cortex with the given number of mini-columns
             int numColumns = 64 * 64;
             // The Size of the Image Height and width is 28 pixel
-            int imageSize = 28;
+            int imageSize = 32;
             var colDims = new int[] { 64, 64 };
 
             // This is a set of configuration parameters used in the experiment.
@@ -76,7 +76,7 @@ namespace NeoCortexApiSample
             //Accessing the Image Folder form the Cureent Directory Foldfer
             var trainingImages = Directory.GetFiles(trainingFolder, $"{inputPrefix}*.png");
             //Image Size
-            int imageSize = 28;
+            int imageSize = 32;
             //Folder Name in the Directorty 
             string testName = "test_image";
 
@@ -104,7 +104,7 @@ namespace NeoCortexApiSample
             sp.Init(mem, new DistributedMemory() { ColumnDictionary = new InMemoryDistributedDictionary<int, NeoCortexApi.Entities.Column>(1) });
 
             //Image Size
-            int imgSize = 28;
+            int imgSize = 32;
             int[] activeArray = new int[numColumns];
 
             int numStableCycles = 0;
@@ -161,7 +161,7 @@ namespace NeoCortexApiSample
             // Get all image files matching the specified prefix
             var trainingImages = Directory.GetFiles(trainingFolder, $"{inputPrefix}*.png");
             // Size of the images
-            int imgSize = 28;
+            int imgSize = 32;
             // Name for the test image
             string testName = "test_image";
             // Array to hold active columns
@@ -277,7 +277,7 @@ namespace NeoCortexApiSample
                 double[] array1D = values.ToArray();
 
                 // Call the  Draw1DHeatmap function with the dynamically generated file path along with all necessary Perameters
-                NeoCortexUtils.Draw1dHeatmap(new List<double[]>() { array1D }, new List<int[]>() { normalizedPermanence[i - 1] }, new List<int[]>() { BinarizedencodedInputs[i - 1] }, filePath, 784, 15, 30, 15, 5, 30);
+                NeoCortexUtils.Draw1dHeatmap(new List<double[]>() { array1D }, new List<int[]>() { normalizedPermanence[i - 1] }, new List<int[]>() { BinarizedencodedInputs[i - 1] }, filePath, 1024, 15, 30, 15, 5, 30);
 
                 Debug.WriteLine("Heatmap generated and saved successfully.");
                 i++;
@@ -322,9 +322,9 @@ namespace NeoCortexApiSample
             string filePath = Path.Combine(folderPath, fileName);
 
             // Draw the combined similarity plot
-            NeoCortexUtils.DrawCombinedSimilarityPlot(combinedSimilarities, filePath, 1000, 850);
+       //     NeoCortexUtils.DrawCombinedSimilarityPlot(combinedSimilarities, filePath, 1000, 850);
 
-            Debug.WriteLine($"Combined similarity plot generated and saved successfully.");
+      //      Debug.WriteLine($"Combined similarity plot generated and saved successfully.");
 
         }
     }
