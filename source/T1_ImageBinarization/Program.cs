@@ -23,7 +23,7 @@ namespace Imagereconstruction
                 // Providing multiple images in a single folder as an input 
                 string InputforBinarizer = Path.Combine(Directory.GetCurrentDirectory(), "Inputs");
 
-                // Call the method to process multiple images and get their binarized data as a single array
+            
                 int[] binarizedImage = ImgBinarize.ConvertImagesToBinaryForm(InputforBinarizer);
             }
             catch (Exception ex)
