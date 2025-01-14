@@ -1,4 +1,4 @@
-﻿using NeoCortex;
+using NeoCortex;
 using NeoCortexApi.Entities;
 using NeoCortexApi.Utility;
 using NeoCortexApi;
@@ -26,7 +26,10 @@ namespace NeoCortexApiSample
             double maxBoost = 5.0;
             // We will build a slice of the cortex with the given number of mini-columns
             int numColumns = 64 * 64;
-            // The Size of the Image Height and width is 28 pixel
+
+
+            // The Size of the Image Height and width is 32 pixel
+
             int imageSize = 32;
             var colDims = new int[] { 64, 64 };
 
@@ -132,7 +135,8 @@ namespace NeoCortexApiSample
 
                     Debug.WriteLine($"'Cycle: {currentCycle} - Image-Input: {Image}'");
                     Debug.WriteLine($"INPUT :{Helpers.StringifyVector(inputVector)}");
-                    Debug.WriteLine($"SDR:{Helpers.StringifyVector(activeCols)}\n");
+                    Debug.WriteLine($"SDR:{Helpers.StringifyVector(activeCols)}");
+                    Debug.WriteLine($"OUTPUT:{(inputBinaryImageFile)}\n");
                 }
 
                 currentCycle++;
@@ -158,27 +162,45 @@ namespace NeoCortexApiSample
         {
             // Path to the folder containing training images
             string trainingFolder = "Sample\\TestFiles";
+
+            // Path to the archive folder for storing test image files
+            string archiveFolder = Path.Combine(trainingFolder, "archive");
+
+            // Ensure the archive folder exists
+            Directory.CreateDirectory(archiveFolder);
+
+            // //Path for the output of Binarized Image
+            string output = Path.GetFullPath("output");
+
+            Directory.CreateDirectory(output);
+
             // Get all image files matching the specified prefix
             var trainingImages = Directory.GetFiles(trainingFolder, $"{inputPrefix}*.png");
+
             // Size of the images
             int imgSize = 32;
-            // Name for the test image
-            string testName = "test_image";
+
             // Array to hold active columns
             int[] activeArray = new int[64 * 64];
-            // List to store heatmap data
-            List<List<double>> heatmapData = new List<List<double>>();
-            // Initialize a list to get normalized permanence values.
-            List<int[]> BinarizedencodedInputs = new List<int[]>();
-            // List to store normalized permanence values
-            List<int[]> normalizedPermanence = new List<int[]>();
-            // List to store similarity values
-            List<double[]> similarityList = new List<double[]>();
-            foreach (var Image in trainingImages)
-            {
-                string inputBinaryImageFile = NeoCortexUtils.BinarizeImage($"{Image}", imgSize, testName);
 
-                // Read input csv file into array
+            // Lists to store data for visualization
+            List<List<double>> heatmapData = new List<List<double>>();
+            List<int[]> binarizedEncodedInputs = new List<int[]>();
+            List<int[]> normalizedPermanence = new List<int[]>();
+            List<double[]> similarityList = new List<double[]>();
+
+            // Iterate through each training image
+            foreach (var image in trainingImages)
+            {
+                // Generate a unique test image name for each input
+                string testImageName = Path.GetFileNameWithoutExtension(image) + "_test_image";
+
+                // Create a binarized version of the input image and store the output file
+                string inputBinaryImageFile = NeoCortexUtils.BinarizeImage(image, imgSize, testImageName);
+                // File.Create(inputBinaryImageFile).Close();
+
+                //File.WriteAllText(output, inputBinaryImageFile);
+                // Read input CSV file into an array
                 int[] inputVector = NeoCortexUtils.ReadCsvIntegers(inputBinaryImageFile).ToArray();
 
                 // Initialize arrays and lists for computations
@@ -191,12 +213,12 @@ namespace NeoCortexApiSample
                 var activeCols = ArrayUtils.IndexWhere(activeArray, (el) => el == 1);
 
                 Dictionary<int, double> reconstructedPermanence = sp.Reconstruct(activeCols);
-
                 int maxInput = inputVector.Length;
 
                 // Create a new dictionary to store extended probabilities
                 Dictionary<int, double> allPermanenceDictionary = new Dictionary<int, double>();
-                // Iterate through all possible inputs using a foreach loop
+
+                // Add all reconstructed permanence values to the dictionary
                 foreach (var kvp in reconstructedPermanence)
                 {
                     int inputIndex = kvp.Key;
@@ -206,49 +228,59 @@ namespace NeoCortexApiSample
                     allPermanenceDictionary[inputIndex] = probability;
                 }
 
-                //Assinginig the inactive columns Permanence 0
+                // Assign inactive columns a permanence value of 0
                 for (int inputIndex = 0; inputIndex < maxInput; inputIndex++)
                 {
                     if (!reconstructedPermanence.ContainsKey(inputIndex))
                     {
-                        // Key doesn't exist, set the probability to 0
                         allPermanenceDictionary[inputIndex] = 0.0;
                     }
                 }
 
                 // Sort the dictionary by keys
                 var sortedAllPermanenceDictionary = allPermanenceDictionary.OrderBy(kvp => kvp.Key);
-                // Convert the sorted dictionary of allpermanences to a list
+
+                // Convert the sorted dictionary of permanence values to a list
                 List<double> permanenceValuesList = sortedAllPermanenceDictionary.Select(kvp => kvp.Value).ToList();
 
-                //Collecting Heatmap Data for Visualization
+                // Collect heatmap data for visualization
                 heatmapData.Add(permanenceValuesList);
 
-                //Collecting Encoded Data for Visualization
-                BinarizedencodedInputs.Add(inputVector);
+                // Collect encoded data for visualization
+                binarizedEncodedInputs.Add(inputVector);
 
-                //Normalizing Permanence Threshold
-                var ThresholdValue = 30.5;
+                // Normalize permanence values based on a threshold
+                var thresholdValue = 30.5;
+                List<int> normalizePermanenceList = Helpers.ThresholdingProbabilities(permanenceValuesList, thresholdValue);
 
-                // Normalize permanences (0 and 1) based on the threshold value and convert them to a list of integers.
-                List<int> normalizePermanenceList = Helpers.ThresholdingProbabilities(permanenceValuesList, ThresholdValue);
-
-                //Collecting Normalized Permanence List for Visualizing
+                // Collect normalized permanence data for visualization
                 normalizedPermanence.Add(normalizePermanenceList.ToArray());
 
-                //Calculating Similarity with encoded Inputs and Reconstructed Inputs
+                // Calculate similarity between the encoded inputs and reconstructed inputs
                 var similarity = MathHelpers.JaccardSimilarityofBinaryArrays(inputVector, normalizePermanenceList.ToArray());
-
                 double[] similarityArray = new double[] { similarity };
 
-                //Collecting Similarity Data for visualizing
+                // Collect similarity data for visualization
                 similarityList.Add(similarityArray);
+
+                // Save the test image data to a .txt file in the archive folder
+                string testImageFilePathp = Path.Combine(archiveFolder, $"{testImageName}.txt");
+                File.WriteAllLines(testImageFilePathp, inputVector.Select(val => val.ToString()));
+
+
+                //output
+
+                //inputBinaryImageFile = Path.Combine(output, $"{testImageName}.txt");
+
             }
-            // Generate the 1D heatmaps using the heatmapData list
-            Generate1DHeatmaps(heatmapData, BinarizedencodedInputs, normalizedPermanence);
-            // Generate the Similarity graph using the Similarity list
+
+            // Generate the 1D heatmaps using the heatmap data list
+            Generate1DHeatmaps(heatmapData, binarizedEncodedInputs, normalizedPermanence);
+
+            // Generate the similarity graph using the similarity list
             DrawSimilarityPlots(similarityList);
         }
+
 
         /// <summary>
         /// Generates 1D heatmaps based on the provided heatmap data and normalized permanence values.
