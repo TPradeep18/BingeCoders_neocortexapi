@@ -1,4 +1,4 @@
-using NeoCortex;
+﻿using NeoCortex;
 using NeoCortexApi.Entities;
 using NeoCortexApi.Utility;
 using NeoCortexApi;
@@ -26,10 +26,7 @@ namespace NeoCortexApiSample
             double maxBoost = 5.0;
             // We will build a slice of the cortex with the given number of mini-columns
             int numColumns = 64 * 64;
-
-
             // The Size of the Image Height and width is 32 pixel
-
             int imageSize = 32;
             var colDims = new int[] { 64, 64 };
 
@@ -198,7 +195,6 @@ namespace NeoCortexApiSample
                 // Create a binarized version of the input image and store the output file
                 string inputBinaryImageFile = NeoCortexUtils.BinarizeImage(image, imgSize, testImageName);
                 // File.Create(inputBinaryImageFile).Close();
-
                 //File.WriteAllText(output, inputBinaryImageFile);
                 // Read input CSV file into an array
                 int[] inputVector = NeoCortexUtils.ReadCsvIntegers(inputBinaryImageFile).ToArray();
@@ -269,8 +265,8 @@ namespace NeoCortexApiSample
 
 
                 //output
-
                 //inputBinaryImageFile = Path.Combine(output, $"{testImageName}.txt");
+
 
             }
 
