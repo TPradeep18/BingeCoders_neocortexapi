@@ -37,53 +37,49 @@ namespace NeoCortexApiSample
             //SpatialPatternLearning experiment = new SpatialPatternLearning();
             //experiment.Run();
 
-            // Starts experiment that demonstrates how to learn spatial patterns
-            ImageBinarizerSpatialPattern exp = new ImageBinarizerSpatialPattern();
-            exp.Run();
-
             //
             // Starts experiment that demonstrates how to learn spatial patterns.
-            // SequenceLearning experiment = new SequenceLearning();
+            //SequenceLearning experiment = new SequenceLearning();
             //experiment.Run();
 
             // This method is developed by Team_MSL to read arbitrary data from single txt file and improve CPU utilization*/
-            //   RunPredictionMultiSequenceExperiment();
+            RunPredictionMultiSequenceExperiment();
         }
 
 
         /// <summary>
         /// Runs a multi-sequence prediction experiment using a prototype for building the prediction engine.
         /// </summary>
-        //private static void RunPredictionMultiSequenceExperiment()
-        //{
-        //    Dictionary<string, List<double>> sequences = new();
+        private static void RunPredictionMultiSequenceExperiment()
+        {
+            Dictionary<string, List<double>> sequences = new();
 
-        //    // Step 1: Retrieve sequences from an Excel file.
-        //    sequences = GetInputFromExcelFile();
+            // Step 1: Retrieve sequences from an Excel file.
+            sequences = GetInputFromExcelFile();
 
-        //    // Step 2: Create an instance of the MultisequenceLearningTeamMSL class for the experiment.
-        //    // Prototype for building the prediction engine.
-        //    MultisequenceLearningTeamMSL experiment = new();
+            // Step 2: Create an instance of the MultisequenceLearningTeamMSL class for the experiment.
+            // Prototype for building the prediction engine.
+            MultisequenceLearningTeamMSL experiment = new();
 
-        //    // Step 3: Train the prediction engine using the provided sequences.
-        //    var predictor = experiment.Run(sequences);
+            // Step 3: Train the prediction engine using the provided sequences.
+            var predictor = experiment.Run(sequences);
 
-        //    List<List<double>> testSequences = new();
+            List<List<double>> testSequences = new();
 
-        //    // Step 4: Retrieve test sequences from another Excel file.
-        //    testSequences = GetSubSequencesInputFromExcelFile();
+            // Step 4: Retrieve test sequences from another Excel file.
+            testSequences = GetSubSequencesInputFromExcelFile();
 
-        //    // Step 5: Iterate through each test sequence and make predictions.
-        //    foreach (var numberList in testSequences)
-        //    {
-        //        // Reset the predictor for each new test sequence.
-        //        predictor.Reset();
+            // Step 5: Iterate through each test sequence and make predictions.
+            foreach (var numberList in testSequences)
+            {
+                // Reset the predictor for each new test sequence.
+                predictor.Reset();
 
-        //        // Step 6: Make predictions for the next elements in the test sequence.
-        //        PredictNextElement(predictor, numberList);
-        //    }
+                // Step 6: Make predictions for the next elements in the test sequence.
+                PredictNextElement(predictor, numberList);
+            }
 
-        //}
+        }
 
 
 
@@ -93,59 +89,59 @@ namespace NeoCortexApiSample
         /// Values outside the specified range (MinVal to MaxVal) are excluded from the sequences.
         /// </summary>
         /// <returns>A List of Lists, where each inner list represents a valid sequences.</returns>
-        //private static Dictionary<string, List<double>> GetInputFromExcelFile()
-        //{
-        //    string filePath = Path.Combine(Environment.CurrentDirectory, "Input.xlsx");
-        //    Dictionary<string, List<double>> sequences = new Dictionary<string, List<double>>();
-        //    System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-        //    using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
-        //    {
-        //        using (var reader = ExcelReaderFactory.CreateReader(stream))
-        //        {
-        //            int temp = 0;
+        private static Dictionary<string, List<double>> GetInputFromExcelFile()
+        {
+            string filePath = Path.Combine(Environment.CurrentDirectory, "Input.xlsx");
+            Dictionary<string, List<double>> sequences = new Dictionary<string, List<double>>();
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
+            {
+                using (var reader = ExcelReaderFactory.CreateReader(stream))
+                {
+                    int temp = 0;
 
-        //            while (reader.Read())
-        //            {
-        //                List<double> inputList = new List<double>();
-        //                bool rowHasData = false;
+                    while (reader.Read())
+                    {
+                        List<double> inputList = new List<double>();
+                        bool rowHasData = false;
 
-        //                for (int i = 0; i < reader.FieldCount; i++)
-        //                {
-        //                    string digit = reader.GetValue(i)?.ToString();
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            string digit = reader.GetValue(i)?.ToString();
 
-        //                    if (string.IsNullOrWhiteSpace(digit))
-        //                    {
-        //                        // Skip over empty cells
-        //                        continue;
-        //                    }
+                            if (string.IsNullOrWhiteSpace(digit))
+                            {
+                                // Skip over empty cells
+                                continue;
+                            }
 
-        //                    if (double.TryParse(digit, out double number))
-        //                    {
+                            if (double.TryParse(digit, out double number))
+                            {
 
-        //                        if (number >= MinVal && number <= MaxVal)
-        //                        {
-        //                            inputList.Add(number);
-        //                        }
-        //                        rowHasData = true;
+                                if (number >= MinVal && number <= MaxVal)
+                                {
+                                    inputList.Add(number);
+                                }
+                                rowHasData = true;
 
-        //                    }
+                            }
 
-        //                }
+                        }
 
-        //                if (rowHasData)
-        //                {
+                        if (rowHasData)
+                        {
 
-        //                    Console.Write("Sequence " + temp + " : ");
-        //                    Console.WriteLine(string.Join(" ", inputList));
-        //                    temp++;
-        //                    sequences.Add("Sequence: " + temp, inputList);
-        //                }
-        //            }
-        //        }
-        //    }
+                            Console.Write("Sequence " + temp + " : ");
+                            Console.WriteLine(string.Join(" ", inputList));
+                            temp++;
+                            sequences.Add("Sequence: " + temp, inputList);
+                        }
+                    }
+                }
+            }
 
-        //    return sequences;
-        //}
+            return sequences;
+        }
 
 
         private static void RunMultiSimpleSequenceLearningExperiment()
