@@ -20,7 +20,10 @@ namespace NeoCortexApiSample
         /// Implements an experiment that demonstrates how to learn spatial patterns.
         /// SP will learn every presented Image input in multiple iterations.
         /// </summary>
-        public void Run()
+
+        //Implementing the HTM & KNN Classifier
+
+        public void Run() 
         {
             Console.WriteLine($"Hello NeocortexApi! Experiment {nameof(ImageReconstructionwithHtm_KNNClassifier)}");
 
