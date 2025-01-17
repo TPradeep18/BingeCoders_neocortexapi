@@ -32,7 +32,7 @@ namespace NeoCortexApiSample
             int numColumns = 64 * 64;
 
 
-            // The Size of the Image Height and width is 32 pixel
+            // The Size of the Image Height and width is 32 pixel to maintain the aspect ratio
 
             int imageSize = 32;
             var colDims = new int[] { 64, 64 };
