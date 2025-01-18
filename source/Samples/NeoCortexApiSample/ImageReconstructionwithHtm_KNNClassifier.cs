@@ -78,7 +78,7 @@ namespace NeoCortexApiSample
             string testName = "test_image";
 
 
-            //
+            // Commit 2
             HomeostaticPlasticityController hpa = new HomeostaticPlasticityController(mem, trainingImages.Length * 50, (isStable, numPatterns, actColAvg, seenInputs) =>
             {
                 isInStableState = isStable;
