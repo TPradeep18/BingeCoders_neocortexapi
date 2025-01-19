@@ -88,5 +88,33 @@ namespace NeoCortexApiSample
             SpatialPooler sp = new SpatialPooler(hpa);
             sp.Init(mem, new DistributedMemory() { ColumnDictionary = new InMemoryDistributedDictionary<int, NeoCortexApi.Entities.Column>(1) });
         }
+
+         HtmClassifier<string, int[]> classifier = new HtmClassifier<string, int[]>();
+
+            int[] activeArray = new int[numColumns];
+            int maxCycles = 5;
+            int currentCycle = 0;
+
+            while (!isInStableState && currentCycle < maxCycles)
+            {
+                foreach (var image in trainingImages)
+                { //Mausam 18-01
+                    string inputBinaryImageFile = NeoCortexUtils.BinarizeImage($"{image}", imgSize, testName);
+
+                    var activeCols = ArrayUtils.
+
+                    // Train the classifier: associate active columns with the image name
+                    
+
+                    Debug.WriteLine($"'Cycle: {currentCycle} - Image-Input: {image}'");
+                    Debug.WriteLine($"INPUT :{Helpers.StringifyVector(inputVector)}");
+                    Debug.WriteLine($"SDR:{Helpers.StringifyVector(activeCols)}\n");
+                 }
+
+                    currentCycle++;
+
+                if (currentCycle >= maxCycles)
+                    break;
+            }
     }
 }
