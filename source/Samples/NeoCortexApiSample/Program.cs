@@ -33,6 +33,8 @@ namespace NeoCortexApiSample
         static void Main(string[] args)
         {
             ImageReconstructionwithHtm_KNNClassifier exp = new ImageReconstructionwithHtm_KNNClassifier();
-            exp.Run();         
+            exp.Run();
         }
+
+
 

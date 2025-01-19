@@ -78,7 +78,7 @@ namespace NeoCortexApiSample
             var trainingImages = Directory.GetFiles(trainingFolder, $"{inputPrefix}*.png");
             Debug.WriteLine($"File is acknowledged");
             int imgSize = 32;
-            string testName = "test_image";
+            string testName = "test_image";  //Pradeep 18-01
 
             HomeostaticPlasticityController hpa = new HomeostaticPlasticityController(mem, trainingImages.Length * 50, (isStable, numPatterns, actColAvg, seenInputs) =>
             {
@@ -87,7 +87,7 @@ namespace NeoCortexApiSample
             }, requiredSimilarityThreshold: 0.975);
 
             SpatialPooler sp = new SpatialPooler(hpa);
-            sp.Init(mem, new DistributedMemory() { ColumnDictionary = new InMemoryDistributedDictionary<int, NeoCortexApi.Entities.Column>(1) });
+            sp.Init(mem, new DistributedMemory() { ColumnDictionary = new InMemoryDistributedDictionary<int, NeoCortexApi.Entities.Column>(1) }); //rajan 18-01
 
             HtmClassifier<string, int[]> classifier = new HtmClassifier<string, int[]>();
 
@@ -98,7 +98,38 @@ namespace NeoCortexApiSample
             while (!isInStableState && currentCycle < maxCycles)
             {
                 foreach (var image in trainingImages)
-                { }
-            }
+                { //Mausam 18-01
+                    string inputBinaryImageFile = NeoCortexUtils.BinarizeImage($"{image}", imgSize, testName);
+                    int[] inputVector = NeoCortexUtils.ReadCsvIntegers(inputBinaryImageFile).ToArray();
+
+                    sp.compute(inputVector, activeArray, true);
+                    var activeCols = ArrayUtils.IndexWhere(activeArray, (el) => el == 1);
+
+                    // Train the classifier: associate active columns with the image name
+                    classifier.Learn(image, activeCols);
+
+                    Debug.WriteLine($"'Cycle: {currentCycle} - Image-Input: {image}'");
+                    Debug.WriteLine($"INPUT :{Helpers.StringifyVector(inputVector)}");
+                    Debug.WriteLine($"SDR:{Helpers.StringifyVector(activeCols)}\n");
+                }
+
+                currentCycle++;
+
+                if (currentCycle >= maxCycles)
+                    break;
+            }//rajan, and its components -19-01
+
+            // Example prediction after training
+            string testImage = trainingImages[0];
+            string testBinaryImageFile = NeoCortexUtils.BinarizeImage($"{testImage}", imgSize, testName);
+            int[] testInputVector = NeoCortexUtils.ReadCsvIntegers(testBinaryImageFile).ToArray();
+
+            sp.compute(testInputVector, activeArray, false);//Pradeep 19-01
+            var testActiveCols = ArrayUtils.IndexWhere(activeArray, (el) => el == 1);
+
+            var predictions = classifier.GetPredictedInputValues(testActiveCols, 1);
+
+            return (sp, classifier);
         }
     }
+}// Mausam 19-01
